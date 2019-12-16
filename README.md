@@ -20,18 +20,18 @@ Once you have downloaded and unzipped the contents of this GitHub repository on 
 
 To do this, open the *Mapping Algorithm.R* script with any text editor. At the beginning of the script, you will find a variable called *path ← "....."* (see screenshot below). Replace the default value of path with the path to the working directory you have unzipped the programme in and save the file.
 
-![alt text](https://github.com/LucaGramaglia/REGWEB-Scripts/blob/master/Images/path_screenshot.jpg "Path screenshot")
+![alt text](https://github.com/LucaGramaglia/UOE-Transcoding/blob/master/Images/path.jpg "Path screenshot")
 
 The *params.csv* file also contains some parameters that need to be set prior to running the script:
-* DSD: The ID of the DSD to be used must be provided. There are two possible values: UOE_NON_FINANCE and UOE_FINANCE.
-* datasetID: The ID of the questionnaire must be provided. Possible values are ENRL, ENTR, PERS, DEM, CLASS, GRAD, and FIN.
-* SourceYear: The year indicating the source DSD version to be used (i.e. the version of the DSD according to which the input files are structured). Possible values are 2017 and 2019.
-* TargetYear: The year indicating the source DSD version to be used (i.e. the version of the DSD according to which the output files are structured). Possible values are 2017 and 2019.
+* _DSD_: The ID of the DSD to be used must be provided. There are two possible values: UOE_NON_FINANCE and UOE_FINANCE.
+* _datasetID_: The ID of the questionnaire must be provided. Possible values are ENRL, ENTR, PERS, DEM, CLASS, GRAD, and FIN.
+* _SourceYear_: The year indicating the source DSD version to be used (i.e. the version of the DSD according to which the input files are structured). Possible values are 2017 and 2019.
+* _TargetYear_: The year indicating the source DSD version to be used (i.e. the version of the DSD according to which the output files are structured). Possible values are 2017 and 2019.
 
 # How to use the programme
 To use the programme, the user simply needs to drop one or more files structured according to source DSD indicated in the _params.csv_ file in the *Input* folder. You can then run the *Mapping Algorithm.R* script. In order to do this, open your R application and type the source command: *source(yourpath/Mapping Algorithm.R)*. See screenshot below.
 
-![alt text](https://github.com/LucaGramaglia/REGWEB-Scripts/blob/master/Images/path_R.jpg "R screenshot")
+![alt text](https://github.com/LucaGramaglia/UOE-Transcoding/blob/master/Images/source.jpg "R screenshot")
 
 The script will generate the transcoded files in CSV format in the _Output-CSV_ folder and in SDMX-ML Compact format in the _Output-XML_ folder. 
 
