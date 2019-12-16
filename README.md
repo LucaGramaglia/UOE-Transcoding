@@ -1,8 +1,10 @@
 # Purpose
-This GitHub repository contains a useful programme to split files in the REGWEB domain. It splits a file containing all regional transport indicators and structured according to the REGWEB DSD into separate files for each indicator, according to the structure expected by the Transport Information System.
+This GitHub repository contains a script to transcode UOE questionnaire files between different DSD versions. The script takes a CSV file structured according to a source DSD version (2017 or 2019) UOE DSDs and transcodes it to a target DSD version. It provides both a CSV and an SDMX-ML Compact output.
 
 # Requirements
-In order to run the programme, you will need an installation of R on your PC (version 3.3.1 or above). The programme only uses base R, and therefore does not require external libraries.
+In order to run the programme, you will need:
+*An installation of R on your PC (version 3.3.1 or above).
+*Downloading and installing the external XML package for R
 
 # Description of the contents of the programme
 The programme downloaded contains the following elements:
