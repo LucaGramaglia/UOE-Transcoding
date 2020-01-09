@@ -24,6 +24,8 @@ write.xml <- function(input.frame, dimension.list, attribute.dataset.list, attri
     input.frame[!is.na(input.frame[,i]),i] <- paste0(rep(paste0(colnames(input.frame)[i], "=", "\"") , rep.times), input.frame[!is.na(input.frame[,i]),i], rep("\"", rep.times))
     
     input.frame[is.na(input.frame[,i]),i] <- ""
+    
+    input.frame[,i] <- gsub("&", "&amp;", input.frame[,i])
   }
  
   attribute.dataset <- serialise(input.frame, attribute.dataset.list)
