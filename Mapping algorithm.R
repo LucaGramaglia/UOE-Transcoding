@@ -68,13 +68,19 @@ serialise <- function(input.frame, component.list) {
 ###
 
 print(paste("Loading parameters", Sys.time()))
-      
+
+CSV.output <- TRUE
+XML.output <- TRUE
+
 params.file <- read.csv(paste0(path, params.file.name), sep = ";", header = FALSE, row.names = 1, na.strings = "", colClasses = "character")
 
 DSD <- as.character(params.file[which(row.names(params.file)=="DSD"), 1])
 datasetID <- as.character(params.file[which(row.names(params.file)=="datasetID"), 1])
 source.year <- as.character(params.file[which(row.names(params.file)=="SourceYear"), 1])
 target.year <- as.character(params.file[which(row.names(params.file)=="TargetYear"), 1])
+
+if("CSVoutput" %in% row.names(params.file)) CSV.output <- as.character(params.file[which(row.names(params.file)=="CSVoutput"), 1])
+if("XMLoutput" %in% row.names(params.file)) XML.output <- as.character(params.file[which(row.names(params.file)=="XMLoutput"), 1])
 
 ###
 #LOAD Target DSD
@@ -131,6 +137,10 @@ header <- toString.XMLNode(getNodeSet(header.doc, "//message:Header")[[1]])
 # -Then, the target combinations are loaded
 #The source and target combinations are then merged in the same dataframe. To be able to distinguish the source columns and target columns
 #the string ".SOURCE" and ".TARGET" respectively is appended to the column names. 
+#
+#If the source and target maps do not have the same number of rows, an error will be returned 
+#If the source map contains duplicate keys, only the first one will be retained and the duplicate
+#row will be eliminated in both the source and the target.
 ###
 
 print(paste("Loading code maps", Sys.time()))
@@ -139,12 +149,15 @@ code.map.list <- list.dirs(path = paste0(path, map.rel.path, DSD, "/Code_maps"),
 
 code.map <- lapply(code.map.list, function(x){
   
-  source.code <- read.csv(paste0(x,"/Code_",source.year,".csv"), sep = ";", na.strings = "", colClasses = "character")
+  source.code <- read.csv(paste0(x,"/Code_",source.year,".csv"), sep = ";", na.strings = "", colClasses = "character", blank.lines.skip = FALSE)
   colnames(source.code) <- paste(colnames(source.code),"SOURCE", sep = ".")
   
-  target.code <- read.csv(paste0(x,"/Code_",target.year,".csv"), sep = ";", na.strings = "", colClasses = "character")
+  target.code <- read.csv(paste0(x,"/Code_",target.year,".csv"), sep = ";", na.strings = "", colClasses = "character", blank.lines.skip = FALSE)
   colnames(target.code) <- paste(colnames(target.code), "TARGET", sep = ".")
-  
+
+  source.code <- source.code[!duplicated(source.code), , drop = FALSE]
+  target.code <- target.code[!duplicated(source.code), , drop = FALSE]
+    
   return(cbind(source.code, target.code))
   
 })
@@ -188,29 +201,33 @@ input.file <- read.csv(paste0(path, input.rel.path, input.file.list[j]), sep = "
 #The output file is initialised by:
 # -Copying the input file
 # -Appending ".SOURCE" to the column names, to show that they refer to the source columns.
+# -Adding an ID column to ensure the ouput will maintain the row order of the original file
 ###
 
 print(paste("Initialising output file", Sys.time()))
 
 output.file <- input.file
 colnames(output.file) <- paste(colnames(output.file),"SOURCE", sep = ".")
+output.file$id <- 1:nrow(output.file)
 
 ###
 #APPLY Code Maps
 ###
 #Code maps are applied by simply doing a left join on between the outptu file and the code maps. After each join, the source columns
 #in the code map are removed from the output file.
-#Once all code maps are applied, the ".SOURCE" and ".TARGET" affixes are removed.
+#Once all code maps are applied, the ".SOURCE" and ".TARGET" affixes are removed. The output rows are then ordered in the order of the original file.
 ###
 
 print(paste("Applying code maps", Sys.time()))
 
 for (i in 1:length(code.map)){
-  output.file <- merge(output.file, code.map[[i]], all.x = TRUE)
+  output.file <- merge(output.file, code.map[[i]])
   source.columns <- colnames(code.map[[i]])[grep(".SOURCE", colnames(code.map[[i]]))]
   output.file <- output.file[, - which(source.columns %in% colnames(output.file))]
 }
 
+output.file <- output.file[order(output.file$id),]
+output.file <- output.file[ , -which(colnames(output.file)=="id")]
 colnames(output.file) <- gsub(".SOURCE", "", colnames(output.file))
 colnames(output.file) <- gsub(".TARGET", "", colnames(output.file))
 
@@ -230,9 +247,11 @@ for(i in 1:nrow(source.concept)) colnames(output.file) <- gsub(source.concept$Co
 #Write the output file in CSV format
 ###
 
-print(paste("Writing output CSV", Sys.time()))
+if(CSV.output){
+  print(paste("Writing output CSV", Sys.time()))
 
-write.table(output.file, file = paste0(path, output.csv.rel.path, input.file.list[j]), sep=";", row.names = FALSE, na = "")
+  write.table(output.file, file = paste0(path, output.csv.rel.path, input.file.list[j]), sep=";", row.names = FALSE, na = "")
+}
 
 ###
 #WRITE output xml
@@ -240,12 +259,14 @@ write.table(output.file, file = paste0(path, output.csv.rel.path, input.file.lis
 #Write the output file in XML format
 ###
 
-print(paste("Formatting output XML", Sys.time()))
+if(XML.output){
+  print(paste("Formatting output XML", Sys.time()))
 
-output.xml <- write.xml(output.file, dimension.list, attribute.dataset.list, attribute.series.list, attribute.obs.list, header, opener, footer)
+  output.xml <- write.xml(output.file, dimension.list, attribute.dataset.list, attribute.series.list, attribute.obs.list, header, opener, footer)
 
-print(paste("Writing output XML", Sys.time()))
+  print(paste("Writing output XML", Sys.time()))
 
-cat(output.xml, file=paste0(path, output.xml.rel.path, gsub(".csv", ".xml", input.file.list[j])))
+  cat(output.xml, file=paste0(path, output.xml.rel.path, gsub(".csv", ".xml", input.file.list[j])))
+}
 
 }
