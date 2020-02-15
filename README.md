@@ -27,6 +27,8 @@ The *params.csv* file also contains some parameters that need to be set prior to
 * _datasetID_: The ID of the questionnaire must be provided. Possible values are ENRL, ENTR, PERS, DEM, CLASS, GRAD, and FIN.
 * _SourceYear_: The year indicating the source DSD version to be used (i.e. the version of the DSD according to which the input files are structured). Possible values are 2017 and 2019.
 * _TargetYear_: The year indicating the source DSD version to be used (i.e. the version of the DSD according to which the output files are structured). Possible values are 2017 and 2019.
+*_CSVoutput(optional)_: Boolean value indicating whether the script should output the transcoded file in CSV format. The default value is TRUE.
+*_XMLoutput(optional)_: Boolean value indicating whether the script should output the transcoded file in SDMX-ML format. The default value is TRUE.
 
 # How to use the programme
 To use the programme, the user simply needs to drop one or more files structured according to source DSD indicated in the _params.csv_ file in the *Input* folder. You can then run the *Mapping Algorithm.R* script. In order to do this, open your R application and type the source command: *source(yourpath/Mapping Algorithm.R)*. See screenshot below.
